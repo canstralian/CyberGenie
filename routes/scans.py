@@ -24,27 +24,28 @@ def new_scan():
         
         try:
             # Create scan record in database
-            scan = Scan(target_url=target_url, user_id=current_user.id)
-            db.session.add(scan)
-            db.session.commit()
-            
-            # Start the actual scan
             result = scan_service.start_scan(target_url, scan_type)
             logger.info(f"Scan started successfully: {result}")
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({'status': 'success', 'scan_id': scan.id})
+                return jsonify({'status': 'success', 'scan_id': result['scan_id']})
             
             flash('Scan started successfully!', 'success')
-            return redirect(url_for('scans.scan_detail', scan_id=scan.id))
+            return redirect(url_for('scans.scan_detail', scan_id=result['scan_id']))
             
+        except ValueError as e:
+            # Handle validation errors with specific messages
+            logger.warning(f"Validation error in scan creation: {str(e)}")
+            flash(str(e), 'warning')
         except Exception as e:
-            db.session.rollback()
+            # Handle other errors
             logger.error(f"Failed to start scan: {str(e)}")
-            flash(str(e), 'error')
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({'status': 'error', 'message': str(e)}), 400
-            return render_template('scans/new.html')
+            flash('An unexpected error occurred while starting the scan. Please try again.', 'error')
+            
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return jsonify({'status': 'error', 'message': str(e)}), 400
+            
+        return render_template('scans/new.html')
     
     return render_template('scans/new.html')
 
