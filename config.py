@@ -2,11 +2,8 @@ import os
 
 class Config:
     SECRET_KEY = os.environ.get("FLASK_SECRET_KEY", os.urandom(24).hex())
-    # Ensure DATABASE_URL starts with postgresql://
-    db_url = os.environ.get("DATABASE_URL", "")
-    if db_url.startswith("postgres://"):
-        db_url = db_url.replace("postgres://", "postgresql://", 1)
-    SQLALCHEMY_DATABASE_URI = db_url
+    # Use SQLite database
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Snowflake Configuration

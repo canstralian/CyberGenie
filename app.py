@@ -4,6 +4,7 @@ from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import Config
+import os
 
 # Setup logging
 logging.basicConfig(
@@ -17,7 +18,17 @@ logger = logging.getLogger(__name__)
 db = SQLAlchemy()
 login_manager = LoginManager()
 
+@login_manager.user_loader
+def load_user(id):
+    from models import User
+    return User.query.get(int(id))
+
 def create_app():
+    # Ensure the instance folder exists
+    try:
+        os.makedirs('instance')
+    except OSError:
+        pass
     logger.info("Creating Flask application...")
     app = Flask(__name__)
     
