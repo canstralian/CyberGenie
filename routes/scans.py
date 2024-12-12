@@ -23,16 +23,30 @@ def new_scan():
         scan_type = request.form.get('scan_type', 'basic')
         
         try:
-            result = scan_service.start_scan(target_url, scan_type)
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({
-                    'status': 'success',
-                    'scan_id': result['scan_id']
-                })
-            
-            flash('Scan started successfully!', 'success')
-            return redirect(url_for('scans.scan_detail', scan_id=result['scan_id']))
+            try:
+                result = scan_service.start_scan(target_url, scan_type)
+                
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify({
+                        'status': 'success',
+                        'scan_id': result['scan_id'],
+                        'message': 'Scan initiated successfully'
+                    })
+                
+                flash('Scan started successfully! Please wait while we analyze the target.', 'success')
+                return redirect(url_for('scans.scan_detail', scan_id=result['scan_id']))
+            except Exception as e:
+                logger.error(f"Scan initiation error: {str(e)}", exc_info=True)
+                error_message = "Failed to start scan. Please try again or contact support if the issue persists."
+                
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify({
+                        'status': 'error',
+                        'message': error_message
+                    }), 500
+                
+                flash(error_message, 'error')
+                return redirect(url_for('scans.new'))
             
         except ValueError as e:
             logger.warning(f"Validation error: {str(e)}")

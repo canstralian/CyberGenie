@@ -29,14 +29,20 @@ class ScanService:
             try:
                 response = requests.head(
                     cleaned_url, 
-                    timeout=10, 
+                    timeout=30,
+                    verify=False,  # Allow self-signed certificates
                     allow_redirects=True,
-                    headers={'User-Agent': 'Bug Hunter Scanner/1.0'}
+                    headers={
+                        'User-Agent': 'Bug Hunter Scanner/1.0',
+                        'Accept': '*/*'
+                    }
                 )
-                response.raise_for_status()
+                # Don't raise for status, just log it
+                if response.status_code >= 400:
+                    self.logger.warning(f"Target URL returned status code: {response.status_code}")
             except requests.exceptions.RequestException as e:
-                self.logger.error(f"Error accessing target URL: {str(e)}")
-                raise ValueError("Could not access the target URL. Please verify the URL is accessible.")
+                self.logger.warning(f"Note: Target URL check warning: {str(e)}")
+                # Continue anyway as the target might be intentionally blocking scanners
             
             # Create scan record
             scan = Scan(
