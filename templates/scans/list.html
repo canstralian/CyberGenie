@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Vulnerability Scans</h4>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newScanModal">
+            New Scan
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <input type="text" class="form-control" id="searchInput" placeholder="Search scans...">
+            </div>
+            <div class="col-md-4">
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="running">Running</option>
+                    <option value="completed">Completed</option>
+                    <option value="failed">Failed</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Target URL</th>
+                        <th>Status</th>
+                        <th>Findings</th>
+                        <th>Created</th>
+                        <th>Completed</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for scan in scans %}
+                    <tr>
+                        <td>{{ scan.id }}</td>
+                        <td>{{ scan.target_url }}</td>
+                        <td>
+                            <span class="badge bg-{{ 
+                                'primary' if scan.status == 'pending' else
+                                'info' if scan.status == 'running' else
+                                'success' if scan.status == 'completed' else
+                                'danger'
+                            }}">
+                                {{ scan.status }}
+                            </span>
+                        </td>
+                        <td>{{ scan.findings|length }}</td>
+                        <td>{{ scan.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ scan.completed_at.strftime('%Y-%m-%d %H:%M') if scan.completed_at else '-' }}</td>
+                        <td>
+                            <a href="{{ url_for('scans.scan_detail', scan_id=scan.id) }}" 
+                               class="btn btn-sm btn-info">View Details</a>
+                            {% if scan.status == 'completed' %}
+                            <button class="btn btn-sm btn-secondary" 
+                                    onclick="downloadReport({{ scan.id }})">Download Report</button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- New Scan Modal -->
+<div class="modal fade" id="newScanModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">New Vulnerability Scan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newScanForm">
+                    <div class="mb-3">
+                        <label for="target_url" class="form-label">Target URL</label>
+                        <input type="url" class="form-control" id="target_url" name="target_url" required>
+                        <small class="form-text text-muted">Enter the full URL of the target to scan</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="startScan">Start Scan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/scan.js') }}"></script>
+{% endblock %}

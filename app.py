@@ -1,0 +1,72 @@
+import logging
+import sys
+from flask import Flask, request
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager
+from config import Config
+
+# Setup logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]',
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+logger = logging.getLogger(__name__)
+
+# Initialize extensions
+db = SQLAlchemy()
+login_manager = LoginManager()
+
+def create_app():
+    logger.info("Creating Flask application...")
+    app = Flask(__name__)
+    
+    # Load configuration
+    logger.info("Loading configuration...")
+    app.config.from_object(Config)
+    
+    # Initialize Flask extensions
+    logger.info("Initializing Flask extensions...")
+    try:
+        db.init_app(app)
+        login_manager.init_app(app)
+        login_manager.login_view = 'auth.login'
+        logger.info("Flask extensions initialized successfully")
+    except Exception as e:
+        logger.error(f"Failed to initialize Flask extensions: {str(e)}")
+        raise
+
+    # Initialize blueprints and database
+    try:
+        with app.app_context():
+            # Import routes
+            logger.info("Registering blueprints...")
+            from routes import auth, dashboard, scans
+            app.register_blueprint(auth.bp)
+            app.register_blueprint(dashboard.bp)
+            app.register_blueprint(scans.bp)
+            logger.info("Blueprints registered successfully")
+
+            # Create database tables
+            logger.info("Creating database tables...")
+            db.create_all()
+            logger.info("Database tables created successfully")
+
+    except Exception as e:
+        logger.error(f"Error during app initialization: {str(e)}")
+        raise
+
+    # Register error handlers
+    @app.errorhandler(404)
+    def not_found_error(error):
+        logger.warning(f"Page not found: {request.url}")
+        return "Page not found", 404
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        logger.error(f"Server error: {error}")
+        db.session.rollback()
+        return "Internal server error", 500
+
+    logger.info("Flask application created successfully")
+    return app

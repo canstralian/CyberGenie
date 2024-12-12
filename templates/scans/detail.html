@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('scans.list_scans') }}">Scans</a></li>
+                <li class="breadcrumb-item active">Scan #{{ scan.id }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Scan Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">Target URL:</dt>
+                    <dd class="col-sm-8">{{ scan.target_url }}</dd>
+                    
+                    <dt class="col-sm-4">Status:</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge bg-{{ 
+                            'primary' if scan.status == 'pending' else
+                            'info' if scan.status == 'running' else
+                            'success' if scan.status == 'completed' else
+                            'danger'
+                        }}">
+                            {{ scan.status }}
+                        </span>
+                    </dd>
+                    
+                    <dt class="col-sm-4">Created:</dt>
+                    <dd class="col-sm-8">{{ scan.created_at.strftime('%Y-%m-%d %H:%M') }}</dd>
+                    
+                    {% if scan.completed_at %}
+                    <dt class="col-sm-4">Completed:</dt>
+                    <dd class="col-sm-8">{{ scan.completed_at.strftime('%Y-%m-d %H:%M') }}</dd>
+                    {% endif %}
+                </dl>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Vulnerability Summary</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="severityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Findings</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <select class="form-select" id="severityFilter">
+                        <option value="">All Severities</option>
+                        <option value="critical">Critical</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+
+                <div id="findingsList">
+                    {% for finding in scan.findings %}
+                    <div class="card mb-3 finding-card" data-severity="{{ finding.severity }}">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">{{ finding.vulnerability_type }}</h6>
+                            <span class="badge bg-{{ 
+                                'danger' if finding.severity == 'critical' else
+                                'warning' if finding.severity == 'high' else
+                                'info' if finding.severity == 'medium' else
+                                'success'
+                            }}">{{ finding.severity }}</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">{{ finding.description }}</p>
+                            {% if finding.proof_of_concept %}
+                            <div class="mt-3">
+                                <h6>Proof of Concept:</h6>
+                                <pre><code class="language-javascript">{{ finding.proof_of_concept }}</code></pre>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if scan.status in ['pending', 'running'] %}
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+    <div class="toast align-items-center text-white bg-info" role="alert" id="scanStatusToast">
+        <div class="d-flex">
+            <div class="toast-body">
+                Scan in progress... <span id="scanProgress">0</span>% complete
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<script src="{{ url_for('static', filename='js/scan.js') }}"></script>
+{% endblock %}
