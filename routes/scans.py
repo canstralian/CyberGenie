@@ -1,18 +1,54 @@
-from flask import Blueprint, render_template, request, jsonify
+from flask import Blueprint, render_template, request, flash, redirect, url_for, jsonify, abort
 from flask_login import login_required, current_user
 from app import db
 from models import Scan, Finding
-from services import snowflake_service, mistral_service, ml_service
+from services.scan_service import ScanService
+import logging
 
-bp = Blueprint('scans', __name__)
+logger = logging.getLogger(__name__)
+bp = Blueprint('scans', __name__, url_prefix='/scans')
+scan_service = ScanService()
 
-@bp.route('/scans')
+@bp.route('/')
 @login_required
 def list_scans():
     scans = Scan.query.filter_by(user_id=current_user.id).all()
     return render_template('scans/list.html', scans=scans)
 
-@bp.route('/scans/<int:scan_id>')
+@bp.route('/new', methods=['GET', 'POST'])
+@login_required
+def new_scan():
+    if request.method == 'POST':
+        target_url = request.form.get('target_url')
+        scan_type = request.form.get('scan_type', 'basic')
+        
+        try:
+            # Create scan record in database
+            scan = Scan(target_url=target_url, user_id=current_user.id)
+            db.session.add(scan)
+            db.session.commit()
+            
+            # Start the actual scan
+            result = scan_service.start_scan(target_url, scan_type)
+            logger.info(f"Scan started successfully: {result}")
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'status': 'success', 'scan_id': scan.id})
+            
+            flash('Scan started successfully!', 'success')
+            return redirect(url_for('scans.scan_detail', scan_id=scan.id))
+            
+        except Exception as e:
+            db.session.rollback()
+            logger.error(f"Failed to start scan: {str(e)}")
+            flash(str(e), 'error')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({'status': 'error', 'message': str(e)}), 400
+            return render_template('scans/new.html')
+    
+    return render_template('scans/new.html')
+
+@bp.route('/<int:scan_id>')
 @login_required
 def scan_detail(scan_id):
     scan = Scan.query.get_or_404(scan_id)
@@ -20,15 +56,13 @@ def scan_detail(scan_id):
         abort(403)
     return render_template('scans/detail.html', scan=scan)
 
-@bp.route('/scans/new', methods=['POST'])
+@bp.route('/<int:scan_id>/status')
 @login_required
-def create_scan():
-    target_url = request.form.get('target_url')
-    scan = Scan(target_url=target_url, user_id=current_user.id)
-    db.session.add(scan)
-    db.session.commit()
-    
-    # Start async scan process
-    mistral_service.start_scan_workflow(scan.id)
-    
-    return jsonify({'status': 'success', 'scan_id': scan.id})
+def scan_status(scan_id):
+    scan = Scan.query.get_or_404(scan_id)
+    if scan.user_id != current_user.id:
+        abort(403)
+    return jsonify({
+        'status': scan.status,
+        'progress': 100 if scan.status == 'completed' else 50
+    })
