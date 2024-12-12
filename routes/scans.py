@@ -21,6 +21,7 @@ def new_scan():
     if request.method == 'POST':
         target_url = request.form.get('target_url')
         scan_type = request.form.get('scan_type', 'basic')
+        error_message = None
         
         try:
             # Create scan record in database
@@ -35,15 +36,20 @@ def new_scan():
             
         except ValueError as e:
             # Handle validation errors with specific messages
-            logger.warning(f"Validation error in scan creation: {str(e)}")
-            flash(str(e), 'warning')
+            error_message = str(e)
+            logger.warning(f"Validation error in scan creation: {error_message}")
+            flash(error_message, 'warning')
         except Exception as e:
             # Handle other errors
-            logger.error(f"Failed to start scan: {str(e)}")
+            error_message = str(e)
+            logger.error(f"Failed to start scan: {error_message}")
             flash('An unexpected error occurred while starting the scan. Please try again.', 'error')
-            
+        
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({'status': 'error', 'message': str(e)}), 400
+            return jsonify({
+                'status': 'error',
+                'message': error_message or 'An unexpected error occurred'
+            }), 400
             
         return render_template('scans/new.html')
     

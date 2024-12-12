@@ -23,7 +23,7 @@ class ScanService:
             # Test URL accessibility
             try:
                 response = requests.head(cleaned_url, timeout=10, allow_redirects=True, 
-                                      headers={'User-Agent': 'Bug Hunter Scanner/1.0'})
+                                    headers={'User-Agent': 'Bug Hunter Scanner/1.0'})
                 response.raise_for_status()
             except requests.exceptions.RequestException as e:
                 self.logger.error(f"Error accessing target URL: {str(e)}")
