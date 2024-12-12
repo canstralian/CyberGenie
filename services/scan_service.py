@@ -30,20 +30,28 @@ class ScanService:
                 self.logger.error(f"Error accessing target URL: {str(e)}")
                 raise ValueError(f"Failed to access target URL: {str(e)}")
             
-            # Create scan record
-            scan = Scan.query.filter_by(target_url=target_url)\
-                           .order_by(Scan.created_at.desc())\
-                           .first()
+            # Create new scan record
+            scan = Scan(
+                target_url=target_url,
+                status='pending',
+                user_id=self._get_current_user_id()
+            )
             
-            if scan and scan.status in ['pending', 'running']:
-                raise ValueError("A scan is already in progress for this target")
-            
-            return {
-                'status': 'started',
-                'target_url': target_url,
-                'scan_type': scan_type,
-                'timestamp': datetime.now().isoformat()
-            }
+            try:
+                db.session.add(scan)
+                db.session.commit()
+                
+                return {
+                    'status': 'started',
+                    'scan_id': scan.id,
+                    'target_url': target_url,
+                    'scan_type': scan_type,
+                    'timestamp': datetime.now().isoformat()
+                }
+            except Exception as e:
+                db.session.rollback()
+                self.logger.error(f"Database error creating scan: {str(e)}")
+                raise Exception("Failed to create scan record")
             
         except ValueError as e:
             # Re-raise validation errors
@@ -56,6 +64,13 @@ class ScanService:
         """
         Validate URL format and basic security checks
         """
+    def _get_current_user_id(self):
+        """Get current user ID from Flask-Login"""
+        from flask_login import current_user
+        if not current_user or not current_user.is_authenticated:
+            raise ValueError("User must be authenticated to start a scan")
+        return current_user.id
+
         if not url:
             return False
         
