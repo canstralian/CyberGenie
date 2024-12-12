@@ -21,37 +21,39 @@ def new_scan():
     if request.method == 'POST':
         target_url = request.form.get('target_url')
         scan_type = request.form.get('scan_type', 'basic')
-        error_message = None
         
         try:
-            # Create scan record in database
             result = scan_service.start_scan(target_url, scan_type)
-            logger.info(f"Scan started successfully: {result}")
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return jsonify({'status': 'success', 'scan_id': result['scan_id']})
+                return jsonify({
+                    'status': 'success',
+                    'scan_id': result['scan_id']
+                })
             
             flash('Scan started successfully!', 'success')
             return redirect(url_for('scans.scan_detail', scan_id=result['scan_id']))
             
         except ValueError as e:
-            # Handle validation errors with specific messages
-            error_message = str(e)
-            logger.warning(f"Validation error in scan creation: {error_message}")
-            flash(error_message, 'warning')
-        except Exception as e:
-            # Handle other errors
-            error_message = str(e)
-            logger.error(f"Failed to start scan: {error_message}")
-            flash('An unexpected error occurred while starting the scan. Please try again.', 'error')
-        
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return jsonify({
-                'status': 'error',
-                'message': error_message or 'An unexpected error occurred'
-            }), 400
+            logger.warning(f"Validation error: {str(e)}")
+            flash(str(e), 'warning')
             
-        return render_template('scans/new.html')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'status': 'error',
+                    'message': str(e)
+                }), 400
+                
+        except Exception as e:
+            error_msg = "An unexpected error occurred. Please try again."
+            logger.error(f"Scan error: {str(e)}")
+            flash(error_msg, 'error')
+            
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return jsonify({
+                    'status': 'error',
+                    'message': error_msg
+                }), 500
     
     return render_template('scans/new.html')
 
