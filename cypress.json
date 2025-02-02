@@ -1,0 +1,25 @@
+{
+  "baseUrl": "http://localhost:5000",
+  "integrationFolder": "cypress/integration",
+  "fixturesFolder": "cypress/fixtures",
+  "screenshotsFolder": "cypress/screenshots",
+  "videosFolder": "cypress/videos",
+  "supportFile": "cypress/support/index.js",
+  "pluginsFile": "cypress/plugins/index.js",
+  "viewportWidth": 1280,
+  "viewportHeight": 720,
+  "defaultCommandTimeout": 8000,
+  "pageLoadTimeout": 60000,
+  "requestTimeout": 5000,
+  "responseTimeout": 30000,
+  "video": true,
+  "videoCompression": 32,
+  "videoUploadOnPasses": false,
+  "chromeWebSecurity": false,
+  "env": {
+    "login_url": "/login",
+    "dashboard_url": "/dashboard",
+    "register_url": "/register",
+    "new_scan_url": "/scans/new"
+  }
+}
