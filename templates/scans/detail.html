@@ -40,7 +40,7 @@
                     
                     {% if scan.completed_at %}
                     <dt class="col-sm-4">Completed:</dt>
-                    <dd class="col-sm-8">{{ scan.completed_at.strftime('%Y-%m-d %H:%M') }}</dd>
+                    <dd class="col-sm-8">{{ scan.completed_at.strftime('%Y-%m-%d %H:%M') }}</dd>
                     {% endif %}
                 </dl>
             </div>
@@ -115,4 +115,42 @@
 {% endif %}
 
 <script src="{{ url_for('static', filename='js/scan.js') }}"></script>
+<script>
+// Real-time scan progress update (simulated here)
+function updateScanProgress() {
+    let progressElement = document.getElementById('scanProgress');
+    let progress = 0;
+
+    let interval = setInterval(function() {
+        if (progress < 100) {
+            progress += Math.random() * 10; // Simulating progress increment
+            progressElement.textContent = Math.min(progress.toFixed(0), 100);
+        } else {
+            clearInterval(interval);
+            progressElement.textContent = "100";
+        }
+    }, 1000); // Simulate progress every second
+}
+
+// Start the progress update if scan is running
+{% if scan.status == 'running' %}
+updateScanProgress();
+{% endif %}
+
+// Filter findings by severity
+document.getElementById('severityFilter').addEventListener('change', function() {
+    let severity = this.value;
+    let findings = document.querySelectorAll('.finding-card');
+    
+    findings.forEach(function(finding) {
+        let findingSeverity = finding.getAttribute('data-severity');
+        if (severity && findingSeverity !== severity) {
+            finding.style.display = 'none';
+        } else {
+            finding.style.display = 'block';
+        }
+    });
+});
+</script>
+
 {% endblock %}
