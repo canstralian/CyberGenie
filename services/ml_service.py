@@ -3,6 +3,9 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from flask import current_app
 
 class MLService:
+    """
+    Service class for managing machine learning tasks, such as analyzing code snippets for vulnerabilities using a pre-trained model.
+    """
     def __init__(self):
         """
         Initializes the tokenizer and model from Hugging Face.
@@ -23,6 +26,12 @@ class MLService:
         Analyzes a code snippet for vulnerabilities using the loaded model.
         Tokenizes the input and performs inference.
         Returns the processed prediction results as a dictionary.
+
+        Args:
+            code_snippet (str): The code snippet to analyze.
+
+        Returns:
+            dict: The processed prediction results.
         """
         if not self.tokenizer or not self.model:
             current_app.logger.error("Model or tokenizer not initialized. Cannot analyze vulnerability.")
@@ -54,6 +63,12 @@ class MLService:
     def _process_predictions(self, predictions):
         """
         Processes the raw predictions into a more readable format with vulnerability types.
+
+        Args:
+            predictions (torch.Tensor): The raw predictions from the model.
+
+        Returns:
+            dict: A dictionary of vulnerability types and their corresponding scores.
         """
         # Define possible vulnerability types corresponding to the model outputs
         vulnerability_types = ['sql_injection', 'xss', 'csrf', 'rce']

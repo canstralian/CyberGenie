@@ -7,11 +7,20 @@ bp = Blueprint('dashboard', __name__)
 @bp.before_request
 @login_required
 def before_request():
+    """
+    Ensure the user is logged in before processing any request.
+    """
     pass
 
 @bp.route('/')
 @bp.route('/dashboard')
 def index():
+    """
+    Render the dashboard index page with recent scans and pagination.
+
+    Returns:
+        Response: The rendered template for the dashboard index page.
+    """
     page = request.args.get('page', 1, type=int)
     scans_per_page = 5
     pagination = (

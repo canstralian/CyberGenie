@@ -14,6 +14,16 @@ scan_service = ScanService()
 @login_required
 @csrf.exempt  # Exempt CSRF for AJAX requests
 def new_scan():
+    """
+    Route for initiating a new scan.
+
+    Methods:
+        GET: Render the new scan form.
+        POST: Process the new scan form and initiate a scan.
+
+    Returns:
+        Response: The rendered template or a JSON response for AJAX requests.
+    """
     form = ScanForm()
     if form.validate_on_submit():
         target_url = form.target_url.data

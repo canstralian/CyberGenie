@@ -31,12 +31,27 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f pyproject.toml ]; then pip install .; fi  # Install dependencies from pyproject.toml if present
 
+      - name: Deploy to Staging
+        run: |
+          echo "Deploying to staging..."
+          # Example: Deploy to AWS S3 for staging
+          aws s3 cp ./myapp s3://mybucket-staging/myapp/ --recursive
+
       - name: Deploy to Production
         run: |
-          # Add your deployment script here
           echo "Deploying to production..."
-          # Example: Deploy to AWS
-          # aws s3 cp ./myapp s3://mybucket/myapp/ --recursive
-          
-        # Optionally, add a condition to stop the deployment if any step fails
-        continue-on-error: false  # Default behavior; stops if deployment fails
+          # Example: Deploy to AWS S3 for production
+          aws s3 cp ./myapp s3://mybucket-production/myapp/ --recursive
+
+      - name: Rollback on Failure
+        if: failure()
+        run: |
+          echo "Deployment failed. Rolling back to previous version..."
+          # Example: Rollback to previous version in AWS S3
+          aws s3 cp s3://mybucket-production/myapp-previous/ s3://mybucket-production/myapp/ --recursive
+
+      - name: Use Terraform for Infrastructure Management
+        run: |
+          echo "Applying infrastructure changes with Terraform..."
+          terraform init
+          terraform apply -auto-approve

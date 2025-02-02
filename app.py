@@ -85,11 +85,29 @@ def create_app():
     # Register error handlers
     @app.errorhandler(404)
     def not_found_error(error):
+        """
+        Handle 404 errors (Page not found).
+        
+        Args:
+            error (HTTPException): The HTTP exception that triggered this handler
+        
+        Returns:
+            tuple: A tuple containing the error message and the HTTP status code
+        """
         logger.warning(f"Page not found: {request.url}")
         return "Page not found", 404
 
     @app.errorhandler(500)
     def internal_error(error):
+        """
+        Handle 500 errors (Internal server error).
+        
+        Args:
+            error (HTTPException): The HTTP exception that triggered this handler
+        
+        Returns:
+            tuple: A tuple containing the error message and the HTTP status code
+        """
         logger.error(f"Server error: {error}")
         db.session.rollback()
         return "Internal server error", 500

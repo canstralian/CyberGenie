@@ -9,6 +9,15 @@ from wtforms.validators import DataRequired, Email, Length
 bp = Blueprint('auth', __name__)
 
 class RegistrationForm(FlaskForm):
+    """
+    Form for user registration.
+
+    Fields:
+        username (StringField): The username field.
+        email (StringField): The email field.
+        password (PasswordField): The password field.
+        submit (SubmitField): The submit button.
+    """
     username = StringField('Username', validators=[DataRequired(), Length(min=3, max=20)])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired(), Length(min=8)])
@@ -16,6 +25,16 @@ class RegistrationForm(FlaskForm):
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
+    """
+    Route for user registration.
+
+    Methods:
+        GET: Render the registration form.
+        POST: Process the registration form and create a new user.
+
+    Returns:
+        Response: The rendered template or a redirect response.
+    """
     form = RegistrationForm()
     if form.validate_on_submit():
         username = form.username.data
@@ -38,6 +57,16 @@ def register():
 
 @bp.route('/login', methods=['GET', 'POST'])
 def login():
+    """
+    Route for user login.
+
+    Methods:
+        GET: Render the login form.
+        POST: Process the login form and authenticate the user.
+
+    Returns:
+        Response: The rendered template or a redirect response.
+    """
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
@@ -55,5 +84,11 @@ def login():
 @bp.route('/logout')
 @login_required
 def logout():
+    """
+    Route for user logout.
+
+    Returns:
+        Response: A redirect response to the login page.
+    """
     logout_user()
     return redirect(url_for('auth.login'))
