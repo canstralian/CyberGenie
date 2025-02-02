@@ -1,7 +1,3 @@
-"""
-Main module to initialize and run the Flask application.
-"""
-
 import logging
 import sys
 from app import create_app
@@ -22,6 +18,6 @@ try:
     if __name__ == "__main__":
         logger.info("Starting Flask server...")
         app.run(host="0.0.0.0", port=5000, debug=True)
-except Exception as e:
+except RuntimeError as e:
     logger.error("Failed to start application: %s", e)
     sys.exit(1)
