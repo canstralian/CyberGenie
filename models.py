@@ -34,3 +34,4 @@ class Finding(db.Model):
     proof_of_concept = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'), nullable=False)
+    
