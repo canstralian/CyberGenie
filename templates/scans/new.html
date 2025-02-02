@@ -5,20 +5,22 @@
     <h2>Start New Scan</h2>
     
     <form method="POST" class="mt-4">
+        {{ form.hidden_tag() }}
         <div class="mb-3">
-            <label for="target_url" class="form-label">Target URL</label>
-            <input type="url" class="form-control" id="target_url" name="target_url" 
-                   placeholder="https://example.com" required>
-            <div class="form-text">Enter the URL you want to scan for vulnerabilities</div>
+            {{ form.target_url.label(class="form-label") }}
+            {{ form.target_url(class="form-control", placeholder="https://example.com") }}
+            {% if form.target_url.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.target_url.errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
         
         <div class="mb-3">
-            <label for="scan_type" class="form-label">Scan Type</label>
-            <select class="form-select" id="scan_type" name="scan_type">
-                <option value="basic">Basic Scan</option>
-                <option value="full">Full Scan</option>
-                <option value="api">API Scan</option>
-            </select>
+            {{ form.scan_type.label(class="form-label") }}
+            {{ form.scan_type(class="form-select") }}
         </div>
         
         <button type="submit" class="btn btn-primary">Start Scan</button>
