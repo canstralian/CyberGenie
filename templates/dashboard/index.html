@@ -68,16 +68,61 @@
                     <div class="mb-3">
                         <label for="target_url" class="form-label">Target URL</label>
                         <input type="url" class="form-control" id="target_url" name="target_url" required>
+                        <div class="invalid-feedback" id="urlError">
+                            Please provide a valid URL.
+                        </div>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" id="startScan">Start Scan</button>
+                <button type="button" class="btn btn-primary" id="startScan">
+                    Start Scan
+                    <span class="spinner-border spinner-border-sm text-light d-none" id="startScanSpinner" role="status" aria-hidden="true"></span>
+                </button>
             </div>
         </div>
     </div>
 </div>
 
 <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+<script>
+    // Handling form submission for new scan
+    document.getElementById('startScan').addEventListener('click', function() {
+        const targetUrlInput = document.getElementById('target_url');
+        const targetUrl = targetUrlInput.value;
+        
+        // Simple validation for URL
+        if (!targetUrl || !isValidUrl(targetUrl)) {
+            targetUrlInput.classList.add('is-invalid');
+            document.getElementById('urlError').style.display = 'block';
+            return;
+        }
+
+        // Clear any previous error messages
+        targetUrlInput.classList.remove('is-invalid');
+        document.getElementById('urlError').style.display = 'none';
+
+        // Disable the button and show the spinner
+        document.getElementById('startScan').disabled = true;
+        document.getElementById('startScanSpinner').classList.remove('d-none');
+        
+        // Simulate starting the scan (Replace with actual scan logic)
+        setTimeout(() => {
+            // Simulating success after scan starts
+            alert('Scan started successfully!');
+            document.getElementById('startScan').disabled = false;
+            document.getElementById('startScanSpinner').classList.add('d-none');
+            $('#newScanModal').modal('hide');
+        }, 2000); // Simulated scan delay
+    });
+
+    // Function to validate URL
+    function isValidUrl(url) {
+        const regex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+        return regex.test(url);
+    }
+</script>
+
 {% endblock %}
