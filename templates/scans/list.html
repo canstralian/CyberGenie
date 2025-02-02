@@ -37,9 +37,9 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="scanTableBody">
                     {% for scan in scans %}
-                    <tr>
+                    <tr class="scan-row" data-id="{{ scan.id }}" data-status="{{ scan.status }}" data-target-url="{{ scan.target_url }}">
                         <td>{{ scan.id }}</td>
                         <td>{{ scan.target_url }}</td>
                         <td>
@@ -97,4 +97,44 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/scan.js') }}"></script>
+<script>
+// Real-time search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+    const searchQuery = this.value.toLowerCase();
+    const rows = document.querySelectorAll('.scan-row');
+    
+    rows.forEach(row => {
+        const targetUrl = row.getAttribute('data-target-url').toLowerCase();
+        const status = row.getAttribute('data-status').toLowerCase();
+        
+        if (targetUrl.includes(searchQuery) || status.includes(searchQuery)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Filter by status functionality
+document.getElementById('statusFilter').addEventListener('change', function() {
+    const selectedStatus = this.value.toLowerCase();
+    const rows = document.querySelectorAll('.scan-row');
+    
+    rows.forEach(row => {
+        const rowStatus = row.getAttribute('data-status').toLowerCase();
+        
+        if (selectedStatus === '' || rowStatus === selectedStatus) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Download report functionality
+function downloadReport(scanId) {
+    // Logic to download the report (assuming backend route is configured for report download)
+    window.location.href = "{{ url_for('scans.download_report', scan_id='') }}" + scanId;
+}
+</script>
 {% endblock %}
