@@ -2,15 +2,15 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>Start New Scan</h2>
+    <h2 class="text-center">Start New Scan</h2>
     
     <form method="POST" class="mt-4">
         {{ form.hidden_tag() }}
-        <div class="mb-3">
+        <div class="mb-3 position-relative">
             {{ form.target_url.label(class="form-label") }}
             {{ form.target_url(class="form-control", placeholder="https://example.com") }}
             {% if form.target_url.errors %}
-                <div class="invalid-feedback">
+                <div class="invalid-feedback d-block">
                     {% for error in form.target_url.errors %}
                         <p>{{ error }}</p>
                     {% endfor %}
@@ -23,7 +23,38 @@
             {{ form.scan_type(class="form-select") }}
         </div>
         
-        <button type="submit" class="btn btn-primary">Start Scan</button>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg">Start Scan</button>
+        </div>
     </form>
 </div>
+
+<style>
+    .container {
+        max-width: 600px;
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .form-control, .form-select {
+        transition: all 0.3s ease-in-out;
+    }
+
+    .form-control:hover, .form-select:hover {
+        transform: scale(1.02);
+    }
+
+    .btn-primary {
+        transition: background-color 0.3s ease-in-out, transform 0.3s ease-in-out;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        transform: scale(1.05);
+    }
+</style>
 {% endblock %}
