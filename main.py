@@ -1,23 +1,22 @@
-import logging
-import sys
-from app import create_app
+"""
+Configuration module for the Flask application.
+"""
 
-# Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]',
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
-logger = logging.getLogger(__name__)
+import os
 
-try:
-    logger.info("Initializing application...")
-    app = create_app()
-    logger.info("Application initialized successfully")
+class Config:
+    """
+    Configuration class for setting up environment variables.
+    """
+    SECRET_KEY = os.environ.get("FLASK_SECRET_KEY", os.urandom(24).hex())
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    if __name__ == "__main__":
-        logger.info("Starting Flask server...")
-        app.run(host="0.0.0.0", port=5000, debug=True)
-except Exception as e:
-    logger.error(f"Failed to start application: {str(e)}")
-    sys.exit(1)
+    SNOWFLAKE_USER = os.environ.get("SNOWFLAKE_USER", os.environ.get("PGUSER"))
+    SNOWFLAKE_PASSWORD = os.environ.get("SNOWFLAKE_PASSWORD", os.environ.get("PGPASSWORD"))
+    SNOWFLAKE_ACCOUNT = os.environ.get("SNOWFLAKE_ACCOUNT", os.environ.get("PGHOST"))
+    SNOWFLAKE_DATABASE = os.environ.get("SNOWFLAKE_DATABASE", os.environ.get("PGDATABASE"))
+    SNOWFLAKE_PORT = os.environ.get("SNOWFLAKE_PORT", os.environ.get("PGPORT"))
+
+    HUGGINGFACE_MODEL = "microsoft/codebert-base"
+    DEBUG = True
