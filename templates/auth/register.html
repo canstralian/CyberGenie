@@ -9,22 +9,79 @@
             </div>
             <div class="card-body">
                 <form method="POST">
+                    <!-- Username Field -->
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+                        <input 
+                            type="text" 
+                            class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                            id="username" 
+                            name="username" 
+                            required 
+                            value="{{ form.username.data or '' }}">
+                        {% if form.username.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.username.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
+                    
+                    <!-- Email Field -->
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
+                        <input 
+                            type="email" 
+                            class="form-control {% if form.email.errors %}is-invalid{% endif %}" 
+                            id="email" 
+                            name="email" 
+                            required 
+                            value="{{ form.email.data or '' }}">
+                        {% if form.email.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
+                    
+                    <!-- Password Field -->
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <input 
+                            type="password" 
+                            class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                            id="password" 
+                            name="password" 
+                            required>
+                        {% if form.password.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.password.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
                     </div>
-                    <button type="submit" class="btn btn-primary">Register</button>
+
+                    <!-- Submit Button with Spinner -->
+                    <button type="submit" class="btn btn-primary w-100" id="registerButton">
+                        Register
+                        <span class="spinner-border spinner-border-sm text-light d-none" id="registerSpinner" role="status" aria-hidden="true"></span>
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // Show loading spinner on form submission
+    document.querySelector("form").addEventListener("submit", function() {
+        document.getElementById("registerButton").disabled = true;
+        document.getElementById("registerSpinner").classList.remove("d-none");
+    });
+</script>
+
 {% endblock %}
