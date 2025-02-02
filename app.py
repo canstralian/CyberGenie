@@ -20,10 +20,25 @@ login_manager = LoginManager()
 
 @login_manager.user_loader
 def load_user(id):
+    """
+    Load user by ID.
+    
+    Args:
+        id (int): User ID
+    
+    Returns:
+        User: User object corresponding to the provided ID
+    """
     from models import User
     return User.query.get(int(id))
 
 def create_app():
+    """
+    Create and configure the Flask application.
+    
+    Returns:
+        Flask: The configured Flask application
+    """
     # Ensure the instance folder exists
     try:
         os.makedirs('instance')
