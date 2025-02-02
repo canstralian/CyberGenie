@@ -19,6 +19,9 @@ class MistralService:
         """
         Starts a scan workflow in Mistral by generating the workflow YAML
         and creating it in Mistral.
+
+        Args:
+            scan_id (int): The ID of the scan to start the workflow for.
         """
         if not self.client:
             current_app.logger.error("Mistral client is not initialized. Cannot start scan workflow.")
@@ -39,6 +42,12 @@ class MistralService:
         Generates the workflow YAML for the scan. This includes a set of tasks
         for fetching the target, running a vulnerability scan, analyzing results,
         and storing the findings.
+
+        Args:
+            scan_id (int): The ID of the scan to generate the workflow for.
+
+        Returns:
+            str: The generated workflow YAML as a string.
         """
         try:
             workflow = {
