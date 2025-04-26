@@ -1,6 +1,6 @@
 import logging
 import sys
-from flask import Flask, request
+from flask import Flask, request, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from config import Config
@@ -58,6 +58,9 @@ def create_app():
         login_manager.init_app(app)
         login_manager.login_view = 'auth.login'
         logger.info("Flask extensions initialized successfully")
+    except SQLAlchemyError as e:
+        logger.error(f"Failed to initialize SQLAlchemy: {str(e)}")
+        raise
     except Exception as e:
         logger.error(f"Failed to initialize Flask extensions: {str(e)}")
         raise
@@ -78,11 +81,42 @@ def create_app():
             db.create_all()
             logger.info("Database tables created successfully")
 
+    except SQLAlchemyError as e:
+        logger.error(f"Database error during app initialization: {str(e)}")
+        raise
     except Exception as e:
         logger.error(f"Error during app initialization: {str(e)}")
         raise
 
     # Register error handlers
+    @app.errorhandler(400)
+    def bad_request_error(error):
+        """
+        Handle 400 errors (Bad request).
+        
+        Args:
+            error (HTTPException): The HTTP exception that triggered this handler
+        
+        Returns:
+            tuple: A tuple containing the rendered template and the HTTP status code
+        """
+        logger.warning(f"Bad request: {request.url}")
+        return render_template('400.html'), 400
+
+    @app.errorhandler(403)
+    def forbidden_error(error):
+        """
+        Handle 403 errors (Forbidden).
+        
+        Args:
+            error (HTTPException): The HTTP exception that triggered this handler
+        
+        Returns:
+            tuple: A tuple containing the rendered template and the HTTP status code
+        """
+        logger.warning(f"Forbidden: {request.url}")
+        return render_template('403.html'), 403
+
     @app.errorhandler(404)
     def not_found_error(error):
         """
@@ -92,10 +126,10 @@ def create_app():
             error (HTTPException): The HTTP exception that triggered this handler
         
         Returns:
-            tuple: A tuple containing the error message and the HTTP status code
+            tuple: A tuple containing the rendered template and the HTTP status code
         """
         logger.warning(f"Page not found: {request.url}")
-        return "Page not found", 404
+        return render_template('404.html'), 404
 
     @app.errorhandler(500)
     def internal_error(error):
@@ -106,11 +140,11 @@ def create_app():
             error (HTTPException): The HTTP exception that triggered this handler
         
         Returns:
-            tuple: A tuple containing the error message and the HTTP status code
+            tuple: A tuple containing the rendered template and the HTTP status code
         """
         logger.error(f"Server error: {error}")
         db.session.rollback()
-        return "Internal server error", 500
+        return render_template('500.html'), 500
 
     logger.info("Flask application created successfully")
     return app
