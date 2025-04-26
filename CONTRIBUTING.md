@@ -51,6 +51,10 @@ To maintain a consistent codebase, please adhere to the following coding standar
 - Use type annotations for function signatures and variables.
 - Keep lines of code within 88 characters.
 - Use a linter, such as `flake8`, to check for code style issues.
+- Use `black` for code formatting. To format your code, run the following command:
+  ```sh
+  black .
+  ```
 
 ## Commit Message Conventions
 
@@ -84,6 +88,9 @@ To submit a pull request, follow these steps:
 3. **Address feedback:**
    - Be responsive to feedback and make any necessary changes to your pull request.
    - Once your pull request is approved, it will be merged into the main branch.
+
+4. **Review process:**
+   - Ensure all pull requests are reviewed by at least one other team member before being merged. This helps to catch potential issues and maintain code quality.
 
 ## Code of Conduct
 

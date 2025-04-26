@@ -99,3 +99,5 @@ class SnowflakeService:
         """
         self.close_connection()
         return self.connect()
+
+# This file is formatted using black

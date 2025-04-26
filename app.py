@@ -114,3 +114,5 @@ def create_app():
 
     logger.info("Flask application created successfully")
     return app
+
+# This file is formatted using black

@@ -21,3 +21,5 @@ class Config:
     SNOWFLAKE_ACCOUNT = os.getenv("SNOWFLAKE_ACCOUNT", "default-account")
     SNOWFLAKE_DATABASE = os.getenv("SNOWFLAKE_DATABASE", "default-database")
     SNOWFLAKE_PORT = os.getenv("SNOWFLAKE_PORT", "default-port")
+
+# This file is formatted using black

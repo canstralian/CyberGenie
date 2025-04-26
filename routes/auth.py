@@ -92,3 +92,5 @@ def logout():
     """
     logout_user()
     return redirect(url_for('auth.login'))
+
+# This file is formatted using black

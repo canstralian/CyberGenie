@@ -56,3 +56,5 @@ def new_scan():
             return redirect(url_for('scans.new'))
 
     return render_template('scans/new.html', form=form)
+
+# This file is formatted using black

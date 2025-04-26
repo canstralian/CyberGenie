@@ -145,3 +145,5 @@ class ScanService:
         except Exception as e:
             self.logger.error(f"Error during URL validation for {url}: {str(e)}")
             return False
+
+# This file is formatted using black
