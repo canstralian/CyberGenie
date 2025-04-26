@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python and install dependencies
         uses: actions/setup-python@v3
         with:
-          python-version: '3.10'  # Pinning Python version for consistency
+          python-version: '3.11'  # Pinning Python version for consistency
 
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -30,6 +30,7 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f pyproject.toml ]; then pip install .; fi  # Install dependencies from pyproject.toml if present
+          pip install flake8 pytest
 
       - name: Deploy to Staging
         run: |

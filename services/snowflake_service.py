@@ -69,14 +69,15 @@ class SnowflakeService:
         try:
             cursor = conn.cursor()
             sql = """
-            INSERT INTO findings (scan_id, vulnerability_type, severity, description)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO findings (scan_id, vulnerability_type, severity, description, proof_of_concept)
+            VALUES (%s, %s, %s, %s, %s)
             """
             cursor.execute(sql, (
                 finding.scan_id,
                 finding.vulnerability_type,
                 finding.severity,
-                finding.description
+                finding.description,
+                finding.proof_of_concept
             ))
             conn.commit()
             current_app.logger.info(f"Successfully stored finding for scan ID {finding.scan_id}.")

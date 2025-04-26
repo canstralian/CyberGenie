@@ -1,8 +1,8 @@
 # CyberGenie
 
 ![Build Status](https://img.shields.io/github/actions/workflow/status/canstralian/CyberGenie/your-workflow.yml?branch=main)
-![Python Version](https://img.shields.io/badge/Python-3.7%2B-blue)
-![Flask](https://img.shields.io/badge/Flask-2.0.1-blue)
+![Python Version](https://img.shields.io/badge/Python-3.11%2B-blue)
+![Flask](https://img.shields.io/badge/Flask-3.1.0-blue)
 ![License](https://img.shields.io/github/license/canstralian/CyberGenie)
 ![Last Commit](https://img.shields.io/github/last-commit/canstralian/CyberGenie)
 ![Open Issues](https://img.shields.io/github/issues/canstralian/CyberGenie)
@@ -36,7 +36,7 @@ CyberGenie/
 
 ### Prerequisites
 
-- Python 3.7+
+- Python 3.11+
 - Flask
 - Flask-SQLAlchemy
 - Flask-Login
