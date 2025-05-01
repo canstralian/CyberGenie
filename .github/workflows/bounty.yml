@@ -1,0 +1,43 @@
+name: Bounty Recon Pipeline
+
+on:
+  workflow_dispatch:      # Manual trigger
+  schedule:
+    - cron: '0 2 * * *'    # Nightly run at 2 AM UTC
+  pull_request:
+    paths:
+      - 'scripts/bounty/**'
+
+jobs:
+  recon:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker container with bounty tools
+        uses: docker://canstralian/cybergenie-bounty:latest
+
+      - name: Run recon
+        run: ./scripts/bounty/recon.sh
+
+  scan:
+    runs-on: ubuntu-latest
+    needs: recon
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/bounty/scan.sh
+
+  exploit:
+    runs-on: ubuntu-latest
+    needs: scan
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/bounty/exploit.sh
+
+  report:
+    runs-on: ubuntu-latest
+    needs: exploit
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./scripts/bounty/report.sh
