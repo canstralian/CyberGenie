@@ -1,0 +1,51 @@
+name: Security Automation Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  schedule:
+    - cron: '0 2 * * *'  # Nightly at 2 AM UTC
+
+jobs:
+  recon:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Passive Recon - Bug Bounty
+        run: ./scripts/bounty/recon.sh
+
+      - name: Passive Recon - Router Project
+        run: ./scripts/router/discover.sh
+
+  scan:
+    runs-on: ubuntu-latest
+    needs: recon
+    steps:
+      - name: Vulnerability Scanning - Bug Bounty
+        run: ./scripts/bounty/scan.sh
+
+      - name: Local Network Scan - Router Project
+        run: ./scripts/router/nmap_scan.sh
+
+  exploit:
+    runs-on: ubuntu-latest
+    needs: scan
+    steps:
+      - name: Exploit Targets - Bug Bounty
+        run: ./scripts/bounty/exploit.sh
+
+      - name: Firmware Exploitation Check - Router Project
+        run: ./scripts/router/firmware_check.sh
+
+  report:
+    runs-on: ubuntu-latest
+    needs: exploit
+    steps:
+      - name: Generate Report - Bug Bounty
+        run: ./scripts/bounty/report.sh
+
+      - name: Push/Notify - Router Project
+        run: ./scripts/router/alert.sh
