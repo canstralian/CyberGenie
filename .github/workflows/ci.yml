@@ -2,27 +2,33 @@ name: CI Workflow
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
   pull_request:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: [ "3.8", "3.9", "3.10" ]
+
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # clones your code for the runner :contentReference[oaicite:1]{index=1}
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
 
       - name: Install dependencies
         run: |
@@ -43,4 +49,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.python-version }}
+          path: test-results.xml
+
+      # Optional: Publish JUnit to PR
+      - name: Publish JUnit report
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          reporter: junit
           path: test-results.xml
