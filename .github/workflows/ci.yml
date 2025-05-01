@@ -21,7 +21,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          cache: 'pip'            # enables pip caching :contentReference[oaicite:2]{index=2}
 
       - name: Cache pip
         uses: actions/cache@v3
