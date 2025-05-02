@@ -190,3 +190,11 @@ Specifies project metadata and dependencies, including Python version requiremen
 
 ### `requirements.txt`
 Lists the required Python packages for the project.
+
+### Code Formatting
+
+The project uses `black` for code formatting. To format your code, run the following command:
+
+```sh
+black .
+```

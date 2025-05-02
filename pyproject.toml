@@ -23,3 +23,8 @@ dependencies = [
 [tool.flake8]
 max-line-length = 88
 count = true
+
+[tool.black]
+line-length = 88
+target-version = ['py38']
+skip-string-normalization = true

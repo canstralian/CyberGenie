@@ -38,3 +38,5 @@ def index():
         pagination=pagination,
         total_scans=total_scans,
     )
+
+# This file is formatted using black
